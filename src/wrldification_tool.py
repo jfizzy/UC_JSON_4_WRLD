@@ -65,7 +65,7 @@ def alter_props(properties_dict):
     properties.update({'id': id, 'type': wtype, 'name': name}) # add the new ones
     return properties
 
-with open('../test_files/EN_01.geojson', 'r+') as f:
+with open('../test_files/EngTest.geojson', 'r+') as f:
     data = json.load(f)
     feature_list = data['features']
 
@@ -77,7 +77,7 @@ with open('../test_files/EN_01.geojson', 'r+') as f:
     #changes are applied
 
     # write to new file
-with open('../test_files/EN_01_output.geojson', 'w') as f:
+with open('../test_files/EngTest_output.geojson', 'w') as f:
     json.dump(data, f, sort_keys=True, indent=4, separators=(',', ': '))
 
 print("Done. file is <filename>_output.geojson")
