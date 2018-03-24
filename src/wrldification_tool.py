@@ -1,5 +1,10 @@
 import json #need this for pretty much everything
 from pprint import pprint
+import os
+from fnmatch import fnmatch
+import pathlib
+from collections import OrderedDict
+
 
 print("Starting conversion...")
 
@@ -58,29 +63,37 @@ def alter_props(properties_dict):
         name = nameparts[0]+ " " + nameparts[2]
     except KeyError:
         try:
-            name = properties['name']
+            if isinstance(properties['name'], str) and "Room: " in properties['name']:
+                name = properties['name'].replace('Room: ', '')
+            else:
+                name = properties['name']
         except KeyError:
             pass
     properties = {}
     properties.update({'id': id, 'type': wtype, 'name': name}) # add the new ones
     return properties
 
-with open('../test_files/EngTest.geojson', 'r+') as f:
-    data = json.load(f)
-    feature_list = data['features']
+root = '.'
+pattern = "*.geojson"
 
-    for feature_dict in feature_list:
-        properties_dict = feature_dict['properties']
-        properties_dict = alter_props(properties_dict)
-        feature_dict['properties'] = properties_dict # apply changes
+for path, subdirs, files in os.walk(root):
+    for name in files:
+        if fnmatch(name, pattern):
+            with open(os.path.join(path, name), 'r') as f:
+                data = json.load(f)
+                feature_list = data['features']
 
-    #changes are applied
+                for feature_dict in feature_list:
+                    properties_dict = feature_dict['properties']
+                    properties_dict = alter_props(properties_dict)
+                    feature_dict['properties'] = properties_dict # apply changes
 
-    # write to new file
-with open('../test_files/EngTest_output.geojson', 'w') as f:
-    json.dump(data, f, sort_keys=True, indent=4, separators=(',', ': '))
+                if feature_list[len(feature_list)-1]['properties'].get('type') == 'building_outline':
+                    feature_list.insert(0, feature_list.pop(len(feature_list)-1))
 
-print("Done. file is <filename>_output.geojson")
+            with open(os.path.join(path, name), 'w') as f:
+                json.dump(data, f, sort_keys=True, indent=4, separators=(',', ': '))
+                pprint('Wrote cleaned file: '+path+'/'+name)
 
 if __name__ == "__main__":
     pass
