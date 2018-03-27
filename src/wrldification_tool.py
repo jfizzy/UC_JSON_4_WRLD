@@ -29,7 +29,8 @@ def wtype_switch(wtype):
         'hallway': 'hallway',
         'door': 'door',
         'escalator': 'escalator',
-        'bathroom': 'bathroom'
+        'bathroom': 'bathroom',
+        'wall': 'wall'
     }.get(wtype,'room')
 
 def removekey(d, key):
@@ -67,6 +68,17 @@ def alter_props(properties_dict):
                 name = properties['name'].replace('Room: ', '')
             else:
                 name = properties['name']
+
+            if isinstance(wtype, str):
+                if wtype == 'bathroom' and name != 'Men\'s Bathroom' and name != 'Women\'s Bathroom':
+                    name = 'Bathroom'
+                elif wtype == 'elevator':
+                    name = 'Elevator'
+                elif wtype == 'escalator':
+                    name = 'Escalator'
+                elif wtype == 'stairs':
+                    name = 'Stairs'
+
         except KeyError:
             pass
     properties = {}
