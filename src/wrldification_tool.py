@@ -96,11 +96,16 @@ def order_levels(level_list):
             this = LEVELS.get(level['id'].split('Level')[1])
             for i in range(len(sorted)):
                 that = LEVELS.get(sorted[i]['id'].split('Level')[1])
+                #print(str(level['id']) + ' vs ' + str(sorted[i]['id']))
                 if this < that:
+                    #print(str(level['id']) + ' < ' + str(sorted[i]['id']))
+                    #print('placed at index '+str(i))
                     sorted.insert(i, level)
                     break
                 elif this > that:
+                    #print(str(level['id']) + ' > ' + str(sorted[i]['id']))
                     if i == len(sorted)-1:
+                        #print('placed at end')
                         sorted.append(level)
                         break
                     else:
@@ -109,6 +114,7 @@ def order_levels(level_list):
                     pprint('found the same level twice!!!!')
         else:
             sorted = [level]
+        #print('-----------------------')
 
     for i in range(len(sorted)):
         sorted[i]['z_order'] = i
@@ -157,16 +163,17 @@ for path, subdirs, files in os.walk(root):
             with open(os.path.join(path, name), 'r') as f:
                 data = json.load(f)
                 level_list = data.get('levels')
-                level_list = order_levels(level_list) # orders the levels and applies the correct z order
+                sorted = order_levels(level_list) # orders the levels and applies the correct z order
 
                 #get the entrance level
                 entrance_index = 1
-                for level in level_list:
+                for level in sorted:
                     if level['id'] == 'Level01':
                         entrance_index = level['z_order']
                 data.update({'entrance_level': entrance_index})
 
-                level_list = fix_level_names(level_list)
+                fixed_names = fix_level_names(sorted)
+                data['levels'] = fixed_names
 
             with open(os.path.join(path, name), 'w') as f:
                 json.dump(data, f, sort_keys=True, indent=4, separators=(',', ': '))
